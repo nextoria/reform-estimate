@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String?
+  phone       String?
+  lineUserId  String?
+  buildingAge Int?
+  concerns    String?
+  photos      String?
+  estimate    String?
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([lineUserId])
+}
+
+model EstimateRule {
+  id                 String   @id @default(cuid())
+  clientId           String
+  category           String   // 外装 / 水回り / 内装
+  itemKey            String   // roof, wall, water, bath, kitchen, toilet, floor, other
+  itemLabel          String   // 表示名
+  unitType           String   @default("式") // 式 / ㎡ / 台
+  baseMinPrice       Int
+  baseMaxPrice       Int
+  lightMultiplier    Float    @default(1.0)  // 軽度劣化
+  mediumMultiplier   Float    @default(1.15) // 中度劣化
+  heavyMultiplier    Float    @default(1.35) // 重度劣化
+  repairMultiplier   Float    @default(0.6)  // 補修レベル
+  partialMultiplier  Float    @default(1.0)  // 部分交換
+  fullMultiplier     Float    @default(1.5)  // 全面交換
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([clientId, itemKey])
+  @@index([clientId])
+}
