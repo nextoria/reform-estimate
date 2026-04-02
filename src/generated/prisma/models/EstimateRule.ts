@@ -304,7 +304,7 @@ export type EstimateRuleGroupByOutputType = {
   _max: EstimateRuleMaxAggregateOutputType | null
 }
 
-type GetEstimateRuleGroupByPayload<T extends EstimateRuleGroupByArgs> = Prisma.PrismaPromise<
+export type GetEstimateRuleGroupByPayload<T extends EstimateRuleGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<EstimateRuleGroupByOutputType, T['by']> &
       {
@@ -1436,6 +1436,7 @@ export type EstimateRuleCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many EstimateRules.
    */
   data: Prisma.EstimateRuleCreateManyInput | Prisma.EstimateRuleCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1454,6 +1455,7 @@ export type EstimateRuleCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many EstimateRules.
    */
   data: Prisma.EstimateRuleCreateManyInput | Prisma.EstimateRuleCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

@@ -25,6 +25,7 @@ export default function EstimateForm({ clientId, primaryColor, lineUserId }: Est
   const router = useRouter();
   const [buildingAge, setBuildingAge] = useState("");
   const [concerns, setConcerns] = useState<string[]>([]);
+  const [details, setDetails] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +45,7 @@ export default function EstimateForm({ clientId, primaryColor, lineUserId }: Est
       formData.set("clientId", clientId);
       formData.set("buildingAge", buildingAge);
       formData.set("concerns", concerns.join(","));
+      if (details) formData.set("details", details);
       if (lineUserId) formData.set("lineUserId", lineUserId);
       photos.forEach((p, i) => formData.set(`photo${i}`, p));
 
@@ -114,6 +116,19 @@ export default function EstimateForm({ clientId, primaryColor, lineUserId }: Est
             </button>
           ))}
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          詳細なご要望（任意）
+        </label>
+        <textarea
+          value={details}
+          onChange={(e) => setDetails(e.target.value)}
+          placeholder="どんな工事をしたいか、気になっている点、希望の仕上がりなどをご記入ください"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base resize-y min-h-[100px]"
+          rows={4}
+        />
       </div>
 
       <button

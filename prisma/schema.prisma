@@ -4,7 +4,18 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   // admin | client
+  clientId     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Lead {
@@ -15,6 +26,7 @@ model Lead {
   lineUserId  String?
   buildingAge Int?
   concerns    String?
+  details     String?
   photos      String?
   estimate    String?
   status      String   @default("new")

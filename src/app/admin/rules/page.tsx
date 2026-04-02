@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface EstimateRule {
   id: string;
@@ -36,10 +37,16 @@ type EditableField = keyof Pick<
 >;
 
 export default function RulesPage() {
+  const router = useRouter();
   const [rules, setRules] = useState<EstimateRule[]>([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
 
   const fetchRules = useCallback(async () => {
     const url = filter ? `/api/admin/rules?clientId=${filter}` : "/api/admin/rules";
@@ -176,13 +183,19 @@ export default function RulesPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-gray-900 text-white py-4 px-6 flex items-center justify-between">
         <h1 className="text-lg font-bold">見積ルール管理</h1>
-        <nav className="flex gap-4 text-sm">
+        <nav className="flex gap-4 text-sm items-center">
           <Link href="/admin" className="hover:underline opacity-80 hover:opacity-100">
             案件一覧
           </Link>
           <Link href="/admin/rules" className="underline">
             見積ルール
           </Link>
+          <button
+            onClick={handleLogout}
+            className="ml-4 px-3 py-1 bg-gray-700 rounded hover:bg-gray-600 transition"
+          >
+            ログアウト
+          </button>
         </nav>
       </header>
 

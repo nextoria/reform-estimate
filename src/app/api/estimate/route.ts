@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
     const clientId = formData.get("clientId") as string;
     const buildingAge = parseInt(formData.get("buildingAge") as string) || 0;
     const concerns = (formData.get("concerns") as string)?.split(",").filter(Boolean) ?? [];
+    const details = (formData.get("details") as string) || null;
     const lineUserId = (formData.get("lineUserId") as string) || null;
 
     // Handle photo uploads
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
       buildingAge,
       concerns,
       photoCount: photoPaths.length,
+      details: details ?? undefined,
     });
 
     // Save to DB
@@ -44,6 +46,7 @@ export async function POST(request: NextRequest) {
         clientId,
         buildingAge,
         concerns: concerns.join(","),
+        details,
         photos: JSON.stringify(photoPaths),
         estimate: JSON.stringify(estimate),
         lineUserId,

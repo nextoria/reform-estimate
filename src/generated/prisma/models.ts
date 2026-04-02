@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/User'
 export type * from './models/Lead'
 export type * from './models/EstimateRule'
 export type * from './commonInputTypes'

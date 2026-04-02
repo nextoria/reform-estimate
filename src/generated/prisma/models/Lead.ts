@@ -42,6 +42,7 @@ export type LeadMinAggregateOutputType = {
   lineUserId: string | null
   buildingAge: number | null
   concerns: string | null
+  details: string | null
   photos: string | null
   estimate: string | null
   status: string | null
@@ -57,6 +58,7 @@ export type LeadMaxAggregateOutputType = {
   lineUserId: string | null
   buildingAge: number | null
   concerns: string | null
+  details: string | null
   photos: string | null
   estimate: string | null
   status: string | null
@@ -72,6 +74,7 @@ export type LeadCountAggregateOutputType = {
   lineUserId: number
   buildingAge: number
   concerns: number
+  details: number
   photos: number
   estimate: number
   status: number
@@ -97,6 +100,7 @@ export type LeadMinAggregateInputType = {
   lineUserId?: true
   buildingAge?: true
   concerns?: true
+  details?: true
   photos?: true
   estimate?: true
   status?: true
@@ -112,6 +116,7 @@ export type LeadMaxAggregateInputType = {
   lineUserId?: true
   buildingAge?: true
   concerns?: true
+  details?: true
   photos?: true
   estimate?: true
   status?: true
@@ -127,6 +132,7 @@ export type LeadCountAggregateInputType = {
   lineUserId?: true
   buildingAge?: true
   concerns?: true
+  details?: true
   photos?: true
   estimate?: true
   status?: true
@@ -229,6 +235,7 @@ export type LeadGroupByOutputType = {
   lineUserId: string | null
   buildingAge: number | null
   concerns: string | null
+  details: string | null
   photos: string | null
   estimate: string | null
   status: string
@@ -241,7 +248,7 @@ export type LeadGroupByOutputType = {
   _max: LeadMaxAggregateOutputType | null
 }
 
-type GetLeadGroupByPayload<T extends LeadGroupByArgs> = Prisma.PrismaPromise<
+export type GetLeadGroupByPayload<T extends LeadGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<LeadGroupByOutputType, T['by']> &
       {
@@ -267,6 +274,7 @@ export type LeadWhereInput = {
   lineUserId?: Prisma.StringNullableFilter<"Lead"> | string | null
   buildingAge?: Prisma.IntNullableFilter<"Lead"> | number | null
   concerns?: Prisma.StringNullableFilter<"Lead"> | string | null
+  details?: Prisma.StringNullableFilter<"Lead"> | string | null
   photos?: Prisma.StringNullableFilter<"Lead"> | string | null
   estimate?: Prisma.StringNullableFilter<"Lead"> | string | null
   status?: Prisma.StringFilter<"Lead"> | string
@@ -282,6 +290,7 @@ export type LeadOrderByWithRelationInput = {
   lineUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   buildingAge?: Prisma.SortOrderInput | Prisma.SortOrder
   concerns?: Prisma.SortOrderInput | Prisma.SortOrder
+  details?: Prisma.SortOrderInput | Prisma.SortOrder
   photos?: Prisma.SortOrderInput | Prisma.SortOrder
   estimate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -300,6 +309,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   lineUserId?: Prisma.StringNullableFilter<"Lead"> | string | null
   buildingAge?: Prisma.IntNullableFilter<"Lead"> | number | null
   concerns?: Prisma.StringNullableFilter<"Lead"> | string | null
+  details?: Prisma.StringNullableFilter<"Lead"> | string | null
   photos?: Prisma.StringNullableFilter<"Lead"> | string | null
   estimate?: Prisma.StringNullableFilter<"Lead"> | string | null
   status?: Prisma.StringFilter<"Lead"> | string
@@ -315,6 +325,7 @@ export type LeadOrderByWithAggregationInput = {
   lineUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   buildingAge?: Prisma.SortOrderInput | Prisma.SortOrder
   concerns?: Prisma.SortOrderInput | Prisma.SortOrder
+  details?: Prisma.SortOrderInput | Prisma.SortOrder
   photos?: Prisma.SortOrderInput | Prisma.SortOrder
   estimate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -338,6 +349,7 @@ export type LeadScalarWhereWithAggregatesInput = {
   lineUserId?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   buildingAge?: Prisma.IntNullableWithAggregatesFilter<"Lead"> | number | null
   concerns?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  details?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   photos?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   estimate?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Lead"> | string
@@ -353,6 +365,7 @@ export type LeadCreateInput = {
   lineUserId?: string | null
   buildingAge?: number | null
   concerns?: string | null
+  details?: string | null
   photos?: string | null
   estimate?: string | null
   status?: string
@@ -368,6 +381,7 @@ export type LeadUncheckedCreateInput = {
   lineUserId?: string | null
   buildingAge?: number | null
   concerns?: string | null
+  details?: string | null
   photos?: string | null
   estimate?: string | null
   status?: string
@@ -383,6 +397,7 @@ export type LeadUpdateInput = {
   lineUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   buildingAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concerns?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photos?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -398,6 +413,7 @@ export type LeadUncheckedUpdateInput = {
   lineUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   buildingAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concerns?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photos?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -413,6 +429,7 @@ export type LeadCreateManyInput = {
   lineUserId?: string | null
   buildingAge?: number | null
   concerns?: string | null
+  details?: string | null
   photos?: string | null
   estimate?: string | null
   status?: string
@@ -428,6 +445,7 @@ export type LeadUpdateManyMutationInput = {
   lineUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   buildingAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concerns?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photos?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -443,6 +461,7 @@ export type LeadUncheckedUpdateManyInput = {
   lineUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   buildingAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concerns?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   photos?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -458,6 +477,7 @@ export type LeadCountOrderByAggregateInput = {
   lineUserId?: Prisma.SortOrder
   buildingAge?: Prisma.SortOrder
   concerns?: Prisma.SortOrder
+  details?: Prisma.SortOrder
   photos?: Prisma.SortOrder
   estimate?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -477,6 +497,7 @@ export type LeadMaxOrderByAggregateInput = {
   lineUserId?: Prisma.SortOrder
   buildingAge?: Prisma.SortOrder
   concerns?: Prisma.SortOrder
+  details?: Prisma.SortOrder
   photos?: Prisma.SortOrder
   estimate?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -492,6 +513,7 @@ export type LeadMinOrderByAggregateInput = {
   lineUserId?: Prisma.SortOrder
   buildingAge?: Prisma.SortOrder
   concerns?: Prisma.SortOrder
+  details?: Prisma.SortOrder
   photos?: Prisma.SortOrder
   estimate?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -503,24 +525,12 @@ export type LeadSumOrderByAggregateInput = {
   buildingAge?: Prisma.SortOrder
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 
@@ -533,6 +543,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   lineUserId?: boolean
   buildingAge?: boolean
   concerns?: boolean
+  details?: boolean
   photos?: boolean
   estimate?: boolean
   status?: boolean
@@ -548,6 +559,7 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lineUserId?: boolean
   buildingAge?: boolean
   concerns?: boolean
+  details?: boolean
   photos?: boolean
   estimate?: boolean
   status?: boolean
@@ -563,6 +575,7 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lineUserId?: boolean
   buildingAge?: boolean
   concerns?: boolean
+  details?: boolean
   photos?: boolean
   estimate?: boolean
   status?: boolean
@@ -578,6 +591,7 @@ export type LeadSelectScalar = {
   lineUserId?: boolean
   buildingAge?: boolean
   concerns?: boolean
+  details?: boolean
   photos?: boolean
   estimate?: boolean
   status?: boolean
@@ -585,7 +599,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "name" | "phone" | "lineUserId" | "buildingAge" | "concerns" | "photos" | "estimate" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "name" | "phone" | "lineUserId" | "buildingAge" | "concerns" | "details" | "photos" | "estimate" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 
 export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Lead"
@@ -598,6 +612,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     lineUserId: string | null
     buildingAge: number | null
     concerns: string | null
+    details: string | null
     photos: string | null
     estimate: string | null
     status: string
@@ -1033,6 +1048,7 @@ export interface LeadFieldRefs {
   readonly lineUserId: Prisma.FieldRef<"Lead", 'String'>
   readonly buildingAge: Prisma.FieldRef<"Lead", 'Int'>
   readonly concerns: Prisma.FieldRef<"Lead", 'String'>
+  readonly details: Prisma.FieldRef<"Lead", 'String'>
   readonly photos: Prisma.FieldRef<"Lead", 'String'>
   readonly estimate: Prisma.FieldRef<"Lead", 'String'>
   readonly status: Prisma.FieldRef<"Lead", 'String'>
@@ -1248,6 +1264,7 @@ export type LeadCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * The data used to create many Leads.
    */
   data: Prisma.LeadCreateManyInput | Prisma.LeadCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1266,6 +1283,7 @@ export type LeadCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many Leads.
    */
   data: Prisma.LeadCreateManyInput | Prisma.LeadCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

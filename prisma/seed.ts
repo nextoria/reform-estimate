@@ -1,7 +1,14 @@
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcrypt";
 
-const adapter = new PrismaBetterSqlite3({ url: "file:./dev.db" });
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not set");
+}
+
+const adapter = new PrismaPg(process.env.DATABASE_URL);
+
 const prisma = new PrismaClient({ adapter });
 
 interface RuleTemplate {
@@ -65,6 +72,31 @@ async function main() {
 
   const count = await prisma.estimateRule.count();
   console.log(`Seeded ${count} estimate rules`);
+
+  // Users
+  const users = [
+    { name: "管理者", email: "admin@example.com", password: "admin1234", role: "admin", clientId: null },
+    { name: "サンプルリフォーム株式会社", email: "clienta@example.com", password: "clienta1234", role: "client", clientId: "client-a" },
+    { name: "快適住まいリフォーム", email: "clientb@example.com", password: "clientb1234", role: "client", clientId: "client-b" },
+  ];
+
+  for (const user of users) {
+    const passwordHash = await bcrypt.hash(user.password, 10);
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
+        name: user.name,
+        email: user.email,
+        passwordHash,
+        role: user.role,
+        clientId: user.clientId,
+      },
+    });
+  }
+
+  const userCount = await prisma.user.count();
+  console.log(`Seeded ${userCount} users`);
 }
 
 main()

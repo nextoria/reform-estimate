@@ -5,6 +5,7 @@ export interface EstimateInput {
   buildingAge: number;
   concerns: string[];
   photoCount: number;
+  details?: string;
 }
 
 export interface EstimateItem {

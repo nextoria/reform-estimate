@@ -29,6 +29,18 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## 初期ログイン情報
+
+seed 実行後に以下のアカウントでログインできます。
+
+| ロール | メールアドレス | パスワード | 備考 |
+|--------|---------------|-----------|------|
+| 管理者 (admin) | admin@example.com | admin1234 | 全クライアントのデータを閲覧可能 |
+| クライアントA (client) | clienta@example.com | clienta1234 | client-a のデータのみ |
+| クライアントB (client) | clientb@example.com | clientb1234 | client-b のデータのみ |
+
+**注意:** 本番環境ではパスワードを変更し、`SESSION_SECRET` 環境変数を設定してください。
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
