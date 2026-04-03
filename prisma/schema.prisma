@@ -7,6 +7,16 @@ datasource db {
   provider = "postgresql"
 }
 
+model Client {
+  id           String   @id @default(cuid())
+  clientKey    String   @unique
+  companyName  String
+  contactEmail String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String

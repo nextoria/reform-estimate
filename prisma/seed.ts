@@ -73,6 +73,23 @@ async function main() {
   const count = await prisma.estimateRule.count();
   console.log(`Seeded ${count} estimate rules`);
 
+  // Clients
+  const clients = [
+    { clientKey: "client-a", companyName: "サンプルリフォーム株式会社", contactEmail: "clienta@example.com" },
+    { clientKey: "client-b", companyName: "快適住まいリフォーム", contactEmail: "clientb@example.com" },
+  ];
+
+  for (const client of clients) {
+    await prisma.client.upsert({
+      where: { clientKey: client.clientKey },
+      update: {},
+      create: client,
+    });
+  }
+
+  const clientCount = await prisma.client.count();
+  console.log(`Seeded ${clientCount} clients`);
+
   // Users
   const users = [
     { name: "管理者", email: "admin@example.com", password: "admin1234", role: "admin", clientId: null },

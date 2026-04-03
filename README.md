@@ -41,6 +41,14 @@ seed 実行後に以下のアカウントでログインできます。
 
 **注意:** 本番環境ではパスワードを変更し、`SESSION_SECRET` 環境変数を設定してください。
 
+## クライアント管理
+
+管理者は `/admin/clients` から新規クライアントを追加できます。
+
+- 会社名、クライアントキー、ログイン用メールアドレス、初期パスワードを入力
+- 既存クライアントの見積ルールをコピーして初期設定可能
+- クライアント作成時に Client レコード、User アカウント、EstimateRule のコピーがトランザクションで一括作成されます
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

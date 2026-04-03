@@ -74,6 +74,9 @@ export default function AdminPage() {
           <Link href="/admin/rules" className="hover:underline opacity-80 hover:opacity-100">
             見積ルール
           </Link>
+          <Link href="/admin/clients" className="hover:underline opacity-80 hover:opacity-100">
+            クライアント
+          </Link>
           <button
             onClick={handleLogout}
             className="ml-4 px-3 py-1 bg-gray-700 rounded hover:bg-gray-600 transition"
