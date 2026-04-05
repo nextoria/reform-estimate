@@ -27,3 +27,14 @@ export const clients: Record<string, ClientConfig> = {
 export function getClient(clientId: string): ClientConfig | undefined {
   return clients[clientId];
 }
+
+/** Static config with defaults for clients not in the hardcoded map */
+export function getClientConfig(clientKey: string): Omit<ClientConfig, "id" | "name"> {
+  const config = clients[clientKey];
+  return {
+    primaryColor: config?.primaryColor ?? "#2563eb",
+    phone: config?.phone ?? "",
+    lineUrl: config?.lineUrl,
+    logo: config?.logo,
+  };
+}

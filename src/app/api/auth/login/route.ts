@@ -29,6 +29,19 @@ export async function POST(request: Request) {
     );
   }
 
+  // Check if client account is active
+  if (user.role === "client" && user.clientId) {
+    const client = await prisma.client.findUnique({
+      where: { clientKey: user.clientId },
+    });
+    if (client && !client.isActive) {
+      return NextResponse.json(
+        { error: "このアカウントは現在停止されています" },
+        { status: 403 }
+      );
+    }
+  }
+
   const session = await createSession(user.id);
 
   return NextResponse.json({

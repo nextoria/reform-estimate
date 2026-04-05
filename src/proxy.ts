@@ -8,9 +8,11 @@ export function proxy(request: NextRequest) {
   // Public routes - no auth needed
   if (
     pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
     pathname.startsWith("/c/") ||
     pathname.startsWith("/api/estimate") ||
     pathname.startsWith("/api/leads") ||
+    pathname.startsWith("/api/clients/") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||

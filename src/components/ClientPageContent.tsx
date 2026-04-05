@@ -7,12 +7,14 @@ import { initLiff } from "@/lib/liff";
 interface ClientPageContentProps {
   clientId: string;
   clientName: string;
+  contactEmail?: string | null;
   primaryColor: string;
 }
 
 export default function ClientPageContent({
   clientId,
   clientName,
+  contactEmail,
   primaryColor,
 }: ClientPageContentProps) {
   const [lineUserId, setLineUserId] = useState<string | null>(null);
@@ -34,13 +36,16 @@ export default function ClientPageContent({
         style={{ backgroundColor: primaryColor }}
       >
         <h1 className="text-xl font-bold">{clientName}</h1>
+        {contactEmail && (
+          <p className="text-sm mt-1 opacity-80">{contactEmail}</p>
+        )}
         <p className="text-sm mt-1 opacity-90">リフォーム概算見積</p>
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-bold text-gray-800 mb-1">
-            かんたん概算見積
+            無料で概算見積もり
           </h2>
           <p className="text-sm text-gray-500 mb-4">
             写真と情報を入力するだけで、すぐに概算金額がわかります

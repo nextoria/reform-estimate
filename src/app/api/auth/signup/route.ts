@@ -1,52 +1,55 @@
-import { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/db";
+import { createSession } from "@/lib/auth";
 
-export async function GET() {
-  const clients = await prisma.client.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
-  return Response.json({ clients });
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { companyName, clientKey, email, password } = body;
+    const { companyName, clientKey, email, password } = await request.json();
 
     if (!companyName || !clientKey || !email || !password) {
-      return Response.json(
-        { error: "必須項目を入力してください" },
+      return NextResponse.json(
+        { error: "全ての項目を入力してください" },
         { status: 400 }
       );
     }
 
-    // Check for duplicate clientKey
+    if (!/^[a-z0-9-]+$/.test(clientKey)) {
+      return NextResponse.json(
+        { error: "クライアントキーは半角英数字とハイフンのみ使用できます" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "パスワードは8文字以上で入力してください" },
+        { status: 400 }
+      );
+    }
+
+    // Check duplicates
     const existingClient = await prisma.client.findUnique({
       where: { clientKey },
     });
     if (existingClient) {
-      return Response.json(
+      return NextResponse.json(
         { error: "このクライアントキーは既に使用されています" },
         { status: 409 }
       );
     }
 
-    // Check for duplicate email
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
     if (existingUser) {
-      return Response.json(
+      return NextResponse.json(
         { error: "このメールアドレスは既に使用されています" },
         { status: 409 }
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    // Always copy from default rules
+    // Fetch default rules
     const defaultRules = await prisma.estimateRule.findMany({
       where: { clientId: "default" },
       select: {
@@ -66,9 +69,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Transaction: create Client + User + copy default EstimateRules
-    const result = await prisma.$transaction(async (tx) => {
-      const client = await tx.client.create({
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Transaction: Client + User + EstimateRules
+    const user = await prisma.$transaction(async (tx) => {
+      await tx.client.create({
         data: {
           clientKey,
           companyName,
@@ -76,7 +81,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      await tx.user.create({
+      const newUser = await tx.user.create({
         data: {
           name: companyName,
           email,
@@ -95,14 +100,20 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      return client;
+      return newUser;
     });
 
-    return Response.json({ client: result }, { status: 201 });
+    // Auto-login
+    const session = await createSession(user.id);
+
+    return NextResponse.json({
+      ok: true,
+      redirectTo: session.role === "admin" ? "/admin" : "/dashboard",
+    }, { status: 201 });
   } catch (error) {
-    console.error("Client creation error:", error);
-    return Response.json(
-      { error: "クライアントの作成に失敗しました" },
+    console.error("Signup error:", error);
+    return NextResponse.json(
+      { error: "登録に失敗しました" },
       { status: 500 }
     );
   }

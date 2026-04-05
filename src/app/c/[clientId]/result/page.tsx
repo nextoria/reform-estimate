@@ -1,12 +1,18 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { getClient } from "@/lib/clients";
+import { getClientConfig } from "@/lib/clients";
 import LeadForm from "@/components/LeadForm";
 
 function formatPrice(n: number) {
   return n.toLocaleString("ja-JP");
+}
+
+interface ClientInfo {
+  companyName: string;
+  contactEmail: string | null;
+  isActive: boolean;
 }
 
 export default function ResultPage({
@@ -20,7 +26,17 @@ export default function ResultPage({
   const estimateRaw = searchParams.get("estimate") ?? "{}";
   const lineNotified = searchParams.get("lineNotified") === "true";
 
-  const client = getClient(clientId);
+  const config = getClientConfig(clientId);
+  const [clientInfo, setClientInfo] = useState<ClientInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/clients/${clientId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setClientInfo(data?.client ?? null))
+      .finally(() => setLoading(false));
+  }, [clientId]);
+
   const estimate = JSON.parse(estimateRaw) as {
     items: { label: string; category: string; unitType: string; min: number; max: number }[];
     totalMin: number;
@@ -32,17 +48,26 @@ export default function ResultPage({
 
   const [submitted, setSubmitted] = useState(false);
 
-  if (!client) {
+  if (loading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">読み込み中...</div>;
+  }
+
+  if (!clientInfo) {
     return <div className="p-8 text-center">クライアントが見つかりません</div>;
   }
+
+  const clientName = clientInfo.companyName;
+  const primaryColor = config.primaryColor;
+  const phone = config.phone;
+  const lineUrl = config.lineUrl;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header
         className="text-white py-6 px-4 text-center"
-        style={{ backgroundColor: client.primaryColor }}
+        style={{ backgroundColor: primaryColor }}
       >
-        <h1 className="text-xl font-bold">{client.name}</h1>
+        <h1 className="text-xl font-bold">{clientName}</h1>
         <p className="text-sm mt-1 opacity-90">概算見積結果</p>
       </header>
 
@@ -75,7 +100,7 @@ export default function ResultPage({
           </div>
           <div
             className="mt-4 p-4 rounded-lg text-white text-center"
-            style={{ backgroundColor: client.primaryColor }}
+            style={{ backgroundColor: primaryColor }}
           >
             <p className="text-sm">概算合計</p>
             <p className="text-2xl font-bold mt-1">
@@ -108,7 +133,7 @@ export default function ResultPage({
               </h2>
               <LeadForm
                 leadId={leadId}
-                primaryColor={client.primaryColor}
+                primaryColor={primaryColor}
                 onSubmitted={() => setSubmitted(true)}
               />
             </>
@@ -120,16 +145,18 @@ export default function ResultPage({
           <h2 className="text-lg font-bold text-gray-800 mb-2">
             お問い合わせ
           </h2>
-          <a
-            href={`tel:${client.phone}`}
-            className="block w-full text-center py-3 rounded-lg border-2 font-bold transition"
-            style={{ borderColor: client.primaryColor, color: client.primaryColor }}
-          >
-            電話で相談 {client.phone}
-          </a>
-          {client.lineUrl && (
+          {phone && (
             <a
-              href={client.lineUrl}
+              href={`tel:${phone}`}
+              className="block w-full text-center py-3 rounded-lg border-2 font-bold transition"
+              style={{ borderColor: primaryColor, color: primaryColor }}
+            >
+              電話で相談 {phone}
+            </a>
+          )}
+          {lineUrl && (
+            <a
+              href={lineUrl}
               className="block w-full text-center py-3 rounded-lg bg-[#06C755] text-white font-bold"
               target="_blank"
               rel="noopener noreferrer"

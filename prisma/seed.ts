@@ -32,6 +32,24 @@ const baseRules: RuleTemplate[] = [
 ];
 
 async function main() {
+  // default: 共通デフォルトルール（新規クライアント登録時のコピー元）
+  for (const rule of baseRules) {
+    await prisma.estimateRule.upsert({
+      where: { clientId_itemKey: { clientId: "default", itemKey: rule.itemKey } },
+      update: {},
+      create: {
+        clientId: "default",
+        ...rule,
+        lightMultiplier: 1.0,
+        mediumMultiplier: 1.15,
+        heavyMultiplier: 1.35,
+        repairMultiplier: 0.6,
+        partialMultiplier: 1.0,
+        fullMultiplier: 1.5,
+      },
+    });
+  }
+
   // client-a: 標準価格帯
   for (const rule of baseRules) {
     await prisma.estimateRule.upsert({
