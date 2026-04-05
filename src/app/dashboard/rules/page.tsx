@@ -28,6 +28,27 @@ const TEMPLATES = [
   { id: "template-low", label: "低価格", description: "標準より-20%の価格設定" },
 ];
 
+type EditableField =
+  | "baseMinPrice"
+  | "baseMaxPrice"
+  | "lightMultiplier"
+  | "mediumMultiplier"
+  | "heavyMultiplier"
+  | "repairMultiplier"
+  | "partialMultiplier"
+  | "fullMultiplier";
+
+const EDITABLE_FIELDS: EditableField[] = [
+  "baseMinPrice",
+  "baseMaxPrice",
+  "lightMultiplier",
+  "mediumMultiplier",
+  "heavyMultiplier",
+  "repairMultiplier",
+  "partialMultiplier",
+  "fullMultiplier",
+];
+
 export default function DashboardRulesPage() {
   const router = useRouter();
   const [rules, setRules] = useState<EstimateRule[]>([]);
@@ -38,16 +59,90 @@ export default function DashboardRulesPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  // Inline edit: track draft values per rule id
+  const [drafts, setDrafts] = useState<Record<string, Partial<Record<EditableField, string>>>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
+
   const fetchRules = () => {
     fetch("/api/dashboard/rules")
       .then((res) => res.json())
-      .then((data) => setRules(data.rules ?? []))
+      .then((data) => {
+        const fetched: EstimateRule[] = data.rules ?? [];
+        setRules(fetched);
+        // Initialize drafts from fetched data
+        const init: Record<string, Partial<Record<EditableField, string>>> = {};
+        for (const r of fetched) {
+          init[r.id] = {};
+          for (const f of EDITABLE_FIELDS) {
+            init[r.id][f] = String(r[f]);
+          }
+        }
+        setDrafts(init);
+      })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchRules();
   }, []);
+
+  const updateDraft = (ruleId: string, field: EditableField, value: string) => {
+    setDrafts((prev) => ({
+      ...prev,
+      [ruleId]: { ...prev[ruleId], [field]: value },
+    }));
+  };
+
+  const isDirty = (rule: EstimateRule): boolean => {
+    const draft = drafts[rule.id];
+    if (!draft) return false;
+    return EDITABLE_FIELDS.some((f) => draft[f] !== String(rule[f]));
+  };
+
+  const saveRule = async (rule: EstimateRule) => {
+    const draft = drafts[rule.id];
+    if (!draft) return;
+
+    const changes: Record<string, number> = {};
+    for (const f of EDITABLE_FIELDS) {
+      if (draft[f] !== String(rule[f])) {
+        changes[f] = f.startsWith("base") ? parseInt(draft[f]!) : parseFloat(draft[f]!);
+      }
+    }
+
+    if (Object.keys(changes).length === 0) return;
+
+    setSavingId(rule.id);
+    setMessage("");
+    setError("");
+
+    try {
+      const res = await fetch(`/api/dashboard/rules/${rule.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(changes),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "保存に失敗しました");
+        return;
+      }
+      setMessage(`「${rule.itemLabel}」を更新しました`);
+      // Update the rule in-place
+      setRules((prev) => prev.map((r) => (r.id === rule.id ? data.rule : r)));
+      // Sync draft
+      const updated: EstimateRule = data.rule;
+      setDrafts((prev) => {
+        const d: Partial<Record<EditableField, string>> = {};
+        for (const f of EDITABLE_FIELDS) d[f] = String(updated[f]);
+        return { ...prev, [rule.id]: d };
+      });
+    } catch {
+      setError("通信エラーが発生しました");
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   const handleApply = () => {
     if (!selectedTemplate) return;
@@ -212,35 +307,102 @@ export default function DashboardRulesPage() {
                   <th className="text-right px-3 py-2 font-medium text-gray-500">部分</th>
                   <th className="text-right px-3 py-2 font-medium text-gray-500">全面</th>
                   <th className="text-center px-3 py-2 font-medium text-gray-600">有効</th>
+                  <th className="px-3 py-2"></th>
                 </tr>
               </thead>
               <tbody>
-                {rules.map((rule) => (
-                  <tr key={rule.id} className="border-b hover:bg-gray-50">
-                    <td className="px-3 py-2">{rule.category}</td>
-                    <td className="px-3 py-2">{rule.itemLabel}</td>
-                    <td className="px-3 py-2 text-gray-500">{rule.unitType}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {rule.baseMinPrice.toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {rule.baseMaxPrice.toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">{rule.lightMultiplier}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{rule.mediumMultiplier}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{rule.heavyMultiplier}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{rule.repairMultiplier}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{rule.partialMultiplier}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{rule.fullMultiplier}</td>
-                    <td className="px-3 py-2 text-center">
-                      <span
-                        className={`inline-block w-3 h-3 rounded-full ${
-                          rule.isActive ? "bg-green-500" : "bg-gray-300"
-                        }`}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {rules.map((rule) => {
+                  const draft = drafts[rule.id] ?? {};
+                  const dirty = isDirty(rule);
+                  const isSaving = savingId === rule.id;
+                  return (
+                    <tr key={rule.id} className="border-b hover:bg-gray-50">
+                      <td className="px-3 py-2">{rule.category}</td>
+                      <td className="px-3 py-2">{rule.itemLabel}</td>
+                      <td className="px-3 py-2 text-gray-500">{rule.unitType}</td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="10000"
+                          value={draft.baseMinPrice ?? ""}
+                          onChange={(e) => updateDraft(rule.id, "baseMinPrice", e.target.value)}
+                          className="w-24 border border-gray-300 rounded px-2 py-1 text-sm text-right tabular-nums focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="10000"
+                          value={draft.baseMaxPrice ?? ""}
+                          onChange={(e) => updateDraft(rule.id, "baseMaxPrice", e.target.value)}
+                          className="w-24 border border-gray-300 rounded px-2 py-1 text-sm text-right tabular-nums focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={draft.lightMultiplier ?? ""}
+                          onChange={(e) => updateDraft(rule.id, "lightMultiplier", e.target.value)}
+                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-right tabular-nums focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={draft.mediumMultiplier ?? ""}
+                          onChange={(e) => updateDraft(rule.id, "mediumMultiplier", e.target.value)}
+                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-right tabular-nums focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={draft.heavyMultiplier ?? ""}
+                          onChange={(e) => updateDraft(rule.id, "heavyMultiplier", e.target.value)}
+                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-right tabular-nums focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={draft.repairMultiplier ?? ""}
+                          onChange={(e) => updateDraft(rule.id, "repairMultiplier", e.target.value)}
+                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-right tabular-nums focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">{rule.partialMultiplier}</td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={draft.fullMultiplier ?? ""}
+                          onChange={(e) => updateDraft(rule.id, "fullMultiplier", e.target.value)}
+                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-right tabular-nums focus:border-blue-400 focus:outline-none"
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-center">
+                        <span
+                          className={`inline-block w-3 h-3 rounded-full ${
+                            rule.isActive ? "bg-green-500" : "bg-gray-300"
+                          }`}
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <button
+                          onClick={() => saveRule(rule)}
+                          disabled={!dirty || isSaving}
+                          className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-500 disabled:opacity-30 transition whitespace-nowrap"
+                        >
+                          {isSaving ? "..." : "保存"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
