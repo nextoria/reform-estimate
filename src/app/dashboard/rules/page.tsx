@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -185,6 +185,40 @@ export default function DashboardRulesPage() {
     router.push("/login");
   };
 
+  // Simulation: compute estimate ranges from current drafts
+  const SIM_ITEMS = [
+    { key: "kitchen", label: "キッチン" },
+    { key: "bath", label: "浴室" },
+    { key: "wall", label: "外壁" },
+    { key: "floor", label: "床・フローリング" },
+  ];
+
+  const simulation = useMemo(() => {
+    return SIM_ITEMS.map(({ key, label }) => {
+      const rule = rules.find((r) => r.itemKey === key);
+      if (!rule) return { key, label, min: 0, max: 0, found: false };
+
+      const draft = drafts[rule.id];
+      const minPrice = parseFloat(draft?.baseMinPrice ?? String(rule.baseMinPrice)) || 0;
+      const maxPrice = parseFloat(draft?.baseMaxPrice ?? String(rule.baseMaxPrice)) || 0;
+      const medium = parseFloat(draft?.mediumMultiplier ?? String(rule.mediumMultiplier)) || 1;
+      const partial = parseFloat(draft?.partialMultiplier ?? String(rule.partialMultiplier)) || 1;
+
+      return {
+        key,
+        label,
+        min: Math.round(minPrice * medium * partial / 10000) * 10000,
+        max: Math.round(maxPrice * medium * partial / 10000) * 10000,
+        found: true,
+      };
+    });
+  }, [rules, drafts]);
+
+  const simTotal = useMemo(() => ({
+    min: simulation.reduce((s, i) => s + i.min, 0),
+    max: simulation.reduce((s, i) => s + i.max, 0),
+  }), [simulation]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-gray-900 text-white py-4 px-6 flex items-center justify-between">
@@ -254,6 +288,38 @@ export default function DashboardRulesPage() {
             </p>
           )}
         </div>
+
+        {/* Simulation card */}
+        {!loading && rules.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <h2 className="text-lg font-semibold mb-1">想定見積シミュレーション</h2>
+            <p className="text-xs text-gray-400 mb-4">中度劣化・部分交換を想定した概算金額</p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              {simulation.map((item) => (
+                <div key={item.key} className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500 mb-1">{item.label}</p>
+                  {item.found ? (
+                    <p className="text-sm font-bold text-gray-800 tabular-nums">
+                      {(item.min / 10000).toFixed(0)}〜{(item.max / 10000).toFixed(0)}
+                      <span className="text-xs font-normal text-gray-500 ml-0.5">万円</span>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-400">ルールなし</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-blue-50 rounded-lg p-3 flex items-center justify-between">
+              <span className="text-sm font-medium text-blue-800">4項目 合計</span>
+              <span className="text-base font-bold text-blue-800 tabular-nums">
+                {(simTotal.min / 10000).toFixed(0)}〜{(simTotal.max / 10000).toFixed(0)}
+                <span className="text-xs font-normal text-blue-600 ml-0.5">万円</span>
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Confirm dialog */}
         {confirming && (
