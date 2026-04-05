@@ -50,6 +50,64 @@ async function main() {
     });
   }
 
+  // template-standard: 標準テンプレート（= default と同じ）
+  for (const rule of baseRules) {
+    await prisma.estimateRule.upsert({
+      where: { clientId_itemKey: { clientId: "template-standard", itemKey: rule.itemKey } },
+      update: {},
+      create: {
+        clientId: "template-standard",
+        ...rule,
+        lightMultiplier: 1.0,
+        mediumMultiplier: 1.15,
+        heavyMultiplier: 1.35,
+        repairMultiplier: 0.6,
+        partialMultiplier: 1.0,
+        fullMultiplier: 1.5,
+      },
+    });
+  }
+
+  // template-high: 高価格テンプレート（+20%）
+  for (const rule of baseRules) {
+    await prisma.estimateRule.upsert({
+      where: { clientId_itemKey: { clientId: "template-high", itemKey: rule.itemKey } },
+      update: {},
+      create: {
+        clientId: "template-high",
+        ...rule,
+        baseMinPrice: Math.round(rule.baseMinPrice * 1.2 / 10000) * 10000,
+        baseMaxPrice: Math.round(rule.baseMaxPrice * 1.2 / 10000) * 10000,
+        lightMultiplier: 1.0,
+        mediumMultiplier: 1.2,
+        heavyMultiplier: 1.4,
+        repairMultiplier: 0.55,
+        partialMultiplier: 1.0,
+        fullMultiplier: 1.6,
+      },
+    });
+  }
+
+  // template-low: 低価格テンプレート（-20%）
+  for (const rule of baseRules) {
+    await prisma.estimateRule.upsert({
+      where: { clientId_itemKey: { clientId: "template-low", itemKey: rule.itemKey } },
+      update: {},
+      create: {
+        clientId: "template-low",
+        ...rule,
+        baseMinPrice: Math.round(rule.baseMinPrice * 0.8 / 10000) * 10000,
+        baseMaxPrice: Math.round(rule.baseMaxPrice * 0.8 / 10000) * 10000,
+        lightMultiplier: 1.0,
+        mediumMultiplier: 1.1,
+        heavyMultiplier: 1.25,
+        repairMultiplier: 0.65,
+        partialMultiplier: 1.0,
+        fullMultiplier: 1.4,
+      },
+    });
+  }
+
   // client-a: 標準価格帯
   for (const rule of baseRules) {
     await prisma.estimateRule.upsert({
